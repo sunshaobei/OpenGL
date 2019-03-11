@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_navigation"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/type_fragment"
+    >
+
+    <fragment
+        android:id="@+id/list_fragment"
+        android:name="com.test.opengl.fragment.ShapeListFragment"
+        android:label="list_fragment"
+        >
+
+        <action
+            android:id="@+id/navigation_to_triangle"
+            app:destination="@id/shape_fragment" />
+        <action
+            android:id="@+id/nav_2"
+            app:destination="@id/shape_fragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/gesture_list_fragment"
+        android:name="com.test.opengl.fragment.GestureListFragment"
+        android:label="gesture_list_fragment"
+        >
+
+        <action
+            android:id="@+id/nav_gesture"
+            app:destination="@id/gesture_fragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/shape_fragment"
+        android:name="com.test.opengl.fragment.ShapeFragment"
+        android:label="shape_fragment"
+        tools:layout="@layout/fragment_shape"
+        >
+
+    </fragment>
+    <fragment
+        android:id="@+id/type_fragment"
+        android:name="com.test.opengl.fragment.TestTypeFragment"
+        android:label="shape_fragment"
+        tools:layout="@layout/fragment_test_type"
+        >
+        <action android:id="@+id/nav_shape"
+            app:destination="@+id/list_fragment"/>
+
+        <action android:id="@+id/nav_gesture_list"
+            app:destination="@+id/gesture_list_fragment"/>
+
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/gesture_fragment"
+        android:name="com.test.opengl.fragment.GestureFragment"
+        tools:layout= "@layout/fragment_gesture"
+        />
+
+</navigation>
