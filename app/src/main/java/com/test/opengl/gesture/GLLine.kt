@@ -2,6 +2,7 @@ package com.test.opengl.gesture
 
 import android.opengl.GLES20
 import android.util.Log
+import com.test.opengl.shape.Square.Companion.COORDS_PER_VERTEX
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -9,7 +10,7 @@ import java.nio.FloatBuffer
 
 import javax.microedition.khronos.opengles.GL10
 
-class GLLine {
+class GLLine constructor(var render: Any, var pointSize: Float, var width: Int) {
     /**
      * 顶点字节数组
      */
@@ -42,7 +43,17 @@ class GLLine {
     val vertexCount: Int
         get() = pointBufferPos / 3
 
-    fun drawLine(x: Float, y: Float) {
+
+    var lastX = 0f
+    var lastY = 0f
+
+    fun down(x: Float, y: Float) {
+        this.lastX = x
+        this.lastY = y
+        drawPoint(lastX, lastY)
+    }
+
+    fun drawPoint(x: Float, y: Float) {
         //按初始化大小初始化顶点字节数组和顶点数组
         if (pointBuffer == null) {
             pointByteBuffer = ByteBuffer.allocateDirect(initVertexCount * 4)    //顶点数 * sizeof(float)
@@ -59,14 +70,30 @@ class GLLine {
             colorBuffer!!.position(0)
             colorBufferPos = 0
         }
+        write(x, y)
+        val computeDis = computeDis(x, lastX, y, lastY)
+        val fl = pointSize / (2 * width).toFloat()
+        if (computeDis > fl) {
+            val d = (computeDis / fl).toInt() + 1
+            var i = 1
+            while (i <= d) {
+                write(lastX + i * (x - lastX) / d, lastY + i * (y - lastY) / d)
+                i++
+            }
+        }
+        lastX = x
+        lastY = y
+    }
+
+    private fun write(x: Float, y: Float) {
         //写入坐标值x,y,z
         pointBuffer!!.put(pointBufferPos++, x)
         pointBuffer!!.put(pointBufferPos++, y)
         pointBuffer!!.put(pointBufferPos++, 0f)
         //写入颜色值r,g,b,a
+        colorBuffer!!.put(colorBufferPos++, 0f)
         colorBuffer!!.put(colorBufferPos++, 1f)
-        colorBuffer!!.put(colorBufferPos++, Math.random().toFloat())
-        colorBuffer!!.put(colorBufferPos++, 1f)
+        colorBuffer!!.put(colorBufferPos++, 0f)
         colorBuffer!!.put(colorBufferPos++, 1f)
         //如果写入的颜色数超过初始值，将顶点数和颜色数组容量翻倍
         if (colorBufferPos * 4 >= initVertexCount) {
@@ -88,15 +115,37 @@ class GLLine {
         }
     }
 
-    fun drawTo(gl: GL10) {
+
+    fun drawTo(gl: GL10?, mProgram: Int) {
         if (pointBuffer != null && colorBuffer != null) {
             pointBuffer!!.position(0)
             colorBuffer!!.position(0)
-            gl.glVertexPointer(3, GLES20.GL_FLOAT, 0, pointBuffer)
-            gl.glColorPointer(4, GLES20.GL_FLOAT, 0, colorBuffer)
-            gl.glLineWidth(3f)
-            gl.glDrawArrays(GLES20.GL_LINE_STRIP, 0, pointBufferPos / 3) //添加的point浮点数/3才是坐标数（因为一个坐标由x,y,z3个float构成，不能直接用）, 第三个参数count如果超过实际点数就会不断有指向0的点在最后
-            //            gl.glDrawElements(GL10.GL_LINE_STRIP,0, pointBufferPos / 3, null);  //第一个参数是点的类型，第二个参数是点的个数，第三个是第四个参数的类型，第四个参数是点的存储绘制顺序。
+            //获取顶点着色器的vPosiiton成员句柄
+            //准备坐标数据
+            if (render is ScrawlRender)
+                GLES20.glVertexAttribPointer((render as ScrawlRender).mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 12, pointBuffer)
+            else
+                GLES20.glVertexAttribPointer((render as EraserRender).mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 12, pointBuffer)
+            //绘制颜色
+            if (render is ScrawlRender)
+                GLES20.glVertexAttribPointer((render as ScrawlRender).mColorHandler, 4, GLES20.GL_FLOAT, false, 0, colorBuffer)
+            else
+                GLES20.glVertexAttribPointer((render as EraserRender).mColorHandler, 4, GLES20.GL_FLOAT, false, 0, colorBuffer)
+            //绘制三角形  绘制模式 从哪里开始 顶底总数
+            GLES20.glDrawArrays(GLES20.GL_POINTS, 0, pointBufferPos / 3)
         }
     }
+
+    /**
+     * 计算两个点之间的距离
+     * @param x1
+     * @param x2
+     * @param y1
+     * @param y2
+     * @return
+     */
+    fun computeDis(x1: Float, x2: Float, y1: Float, y2: Float): Double {
+        return Math.sqrt(Math.pow(((x2 - x1).toDouble()), 2.0) + Math.pow(((y2 - y1).toDouble()), 2.0))
+    }
+
 }

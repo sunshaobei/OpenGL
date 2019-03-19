@@ -179,18 +179,6 @@ class Image : Shape() {
     }
 
     private fun createBp(): Bitmap {
-//        val min = Math.min(w, h)
-//        val icon = Bitmap.createBitmap(min, min, Bitmap.Config.ARGB_8888)
-//        val canvas = Canvas(icon)
-////                canvas.drawARGB(255, 255, 255,255 );
-//        val photoPaint = Paint()
-//        photoPaint.color = Color.RED
-//        photoPaint.isDither = true
-//        photoPaint.isFilterBitmap = true
-//        photoPaint.isAntiAlias = true
-//        canvas.drawFilter = PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-//        canvas.drawCircle((min / 2).toFloat(), (min / 2).toFloat(), (min / 2).toFloat(), photoPaint)
-
         var icon = BitmapFactory.decodeResource(AppContext.getContext().resources, R.mipmap.attack)
         return icon
     }

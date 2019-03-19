@@ -7,8 +7,11 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.FrameLayout
 import com.test.opengl.GLView
 import com.test.opengl.R
+import com.test.opengl.gesture.Scrawl
 import com.test.opengl.gesture.Translate
 import com.test.opengl.shape.Shape
 
@@ -19,12 +22,12 @@ import com.test.opengl.shape.Shape
  */
 class GestureFragment : Fragment() {
 
-    private lateinit var rootView: View
+    private lateinit var rootView: FrameLayout
     private lateinit var glView: GLView
     private  var rederSet:Boolean =false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        rootView = inflater.inflate(R.layout.fragment_shape, null, false)
+        rootView = inflater.inflate(R.layout.fragment_shape, null, false) as FrameLayout
         glView = rootView.findViewById(R.id.glView)
         glView.setEGLContextClientVersion(2)
         val get = arguments!!.get("c") as Class<*>
@@ -36,6 +39,20 @@ class GestureFragment : Fragment() {
         } catch (e: Exception) {
             e.printStackTrace()
             renderer = Translate(glView)
+        }
+        if (renderer is Scrawl){
+            val button = Button(context)
+            rootView.addView(button)
+            button.text = "change"
+            val layoutParams = button.layoutParams
+            layoutParams.height = 100
+            layoutParams.width =200
+            button.layoutParams = layoutParams
+
+            button.setOnClickListener {
+                val scrawl = renderer as Scrawl
+                scrawl.isScawl = !scrawl.isScawl
+            }
         }
         glView.setRenderer(renderer)
         // 按需渲染

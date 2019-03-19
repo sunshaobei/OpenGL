@@ -114,7 +114,7 @@ class Triangle : Shape() {
         //设置绘制三角形的颜色
         GLES20.glUniform4fv(mColorHandle, 1, color, 0)
         //绘制三角形
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount)
         //禁止顶点数组的句柄
         GLES20.glDisableVertexAttribArray(mPositionHandle)
     }

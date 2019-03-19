@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.test.opengl.R
-import com.test.opengl.shape.Shape
 
 class ShapeFragment : Fragment() {
 

@@ -4,7 +4,7 @@ import android.animation.ValueAnimator
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLES20
-import android.opengl.GLES20.GL_DEPTH_TEST
+import android.opengl.GLES20.*
 import android.opengl.GLUtils
 import android.opengl.Matrix
 import android.util.Log
@@ -111,6 +111,8 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
         onDrawCreatedSet(mProgram)
     }
 
+
+    var top = 0f;
     override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
 
         GLES20.glViewport(0, 0, width, height)
@@ -119,6 +121,7 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
         val h = mBitmap!!.height
         val sWH = w / h.toFloat()
         val sWidthHeight = width / height.toFloat()
+
         if (width > height) {
             if (sWH > sWidthHeight) {
                 //正交投影
@@ -128,8 +131,10 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
             }
         } else {
             if (sWH > sWidthHeight) {
+                top = -1 / sWidthHeight * sWH
                 Matrix.orthoM(mProjectMatrix, 0, -1f, 1f, -1 / sWidthHeight * sWH, 1 / sWidthHeight * sWH, 3f, 7f)
             } else {
+                top = -sWH / sWidthHeight
                 Matrix.orthoM(mProjectMatrix, 0, -1f, 1f, -sWH / sWidthHeight, sWH / sWidthHeight, 3f, 7f)
             }
         }
@@ -149,6 +154,8 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
         draw()
     }
 
+    var textture: IntArray? = null
+
     fun draw() {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         GLES20.glUseProgram(mProgram)
@@ -157,7 +164,11 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
         GLES20.glEnableVertexAttribArray(glHPosition)
         GLES20.glEnableVertexAttribArray(glHCoordinate)
         GLES20.glUniform1i(glHTexture, 0)
-        textureId = createTexture()
+        if (textture != null) {
+            GLES20.glDeleteTextures(1, textture, 0)
+        }
+        textture = createTexture()
+        textureId = textture!![0]
         //传入顶点坐标
         GLES20.glVertexAttribPointer(glHPosition, 2, GLES20.GL_FLOAT, false, 0, bPos)
         //传入纹理坐标
@@ -167,7 +178,7 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
         GLES20.glDisableVertexAttribArray(glHCoordinate)
     }
 
-    private fun createTexture(): Int {
+    private fun createTexture(): IntArray {
         val texture = IntArray(1)
         if (mBitmap != null && !mBitmap!!.isRecycled) {
             //生成纹理
@@ -184,19 +195,19 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
             GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE.toFloat())
             //根据以上指定的参数，生成一个2D纹理
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, mBitmap, 0)
-            return texture[0]
+            return texture
         }
-        return 0
+        return texture
     }
 
     fun onDrawSet() {
-        GLES20.glUniform1i(hChangeType, 0)
-        GLES20.glUniform3fv(hChangeColor, 1, floatArrayOf(0.0f, 0.0f, 0.0f), 0)
+//        GLES20.glUniform1i(hChangeType, 0)
+//        GLES20.glUniform3fv(hChangeColor, 1, floatArrayOf(0.0f, 0.0f, 0.0f), 0)
     }
 
     fun onDrawCreatedSet(mProgram: Int) {
-        hChangeType = GLES20.glGetUniformLocation(mProgram, "vChangeType")
-        hChangeColor = GLES20.glGetUniformLocation(mProgram, "vChangeColor")
+//        hChangeType = GLES20.glGetUniformLocation(mProgram, "vChangeType")
+//        hChangeColor = GLES20.glGetUniformLocation(mProgram, "vChangeColor")
     }
 
     private fun createBp(): Bitmap {
@@ -219,6 +230,7 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
                     pointer1[1] = toOpenGLCoord(event.y, false)
                     pointer2[0] = 0f
                     pointer2[1] = 0f
+                    pointMap.clear()
                     pointMap[event.getPointerId(0)] = pointer1
                 }
 
@@ -274,14 +286,16 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
                     val scale = scleMatrix[0]
                     var disX = 0f
                     var disY = 0f
-                        if (Math.abs(mTranslateMatrix[mTranslateMatrix.size - 4]) > (if(scale<1){0f}else{(scale-1)})) {
-                            disX = Math.abs(mTranslateMatrix[mTranslateMatrix.size - 4]) - (if(scale<1){0f}else{(scale-1)})
-                        }
-                        if (Math.abs(mTranslateMatrix[mTranslateMatrix.size - 3]) > (if(scale<1){0f}else{(scale-1)})) {
-                            disY = Math.abs(mTranslateMatrix[mTranslateMatrix.size - 3]) - (if(scale<1){0f}else{(scale-1)})
-                        }
+                    if (Math.abs(mTranslateMatrix[mTranslateMatrix.size - 4]) > getMinDisX(scale)) {
+                        disX = Math.abs(mTranslateMatrix[mTranslateMatrix.size - 4]) - getMinDisX(scale)
+                    }
 
-                    if (Math.abs(mTranslateMatrix[mTranslateMatrix.size - 4]) > (if(scale<1){0f}else{(scale-1)}) || Math.abs(mTranslateMatrix[mTranslateMatrix.size - 3]) > (if(scale<1){(0f)}else{(scale-1)})||scale<1) {
+
+                    if (Math.abs(mTranslateMatrix[mTranslateMatrix.size - 3]) > getMinDisY(scale)) {
+                        disY = Math.abs(mTranslateMatrix[mTranslateMatrix.size - 3]) - getMinDisY(scale)
+                    }
+
+                    if (disY > 0 || disX > 0 || scale < 1) {
                         val ofFloat = ValueAnimator.ofFloat(1f, 0f)
                         ofFloat.duration = 200
                         ofFloat.interpolator = DecelerateInterpolator()
@@ -291,20 +305,20 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
                             var ty = mTranslateMatrix[mTranslateMatrix.size - 3]
                             if (disX > 0) {
                                 if (tx > 0) {
-                                    tx = (Math.abs(if(scale<1){0f}else{(scale-1)})) + disX * animatedValue
+                                    tx = getMinDisX(scale) + disX * animatedValue
                                 } else if (tx < 0) {
-                                    tx = -(Math.abs(if(scale<1){0f}else{(scale-1)})) - disX * animatedValue
+                                    tx = -getMinDisX(scale) - disX * animatedValue
                                 }
                             }
                             if (disY > 0) {
                                 if (ty > 0) {
-                                    ty = (Math.abs(if(scale<1){0f}else{(scale-1)})) + disY * animatedValue
+                                    ty = getMinDisY(scale) + disY * animatedValue
                                 } else if (ty < 0) {
-                                    ty = -(Math.abs(if(scale<1){0f}else{(scale-1)})) - disY * animatedValue
+                                    ty = -(getMinDisY(scale)) - disY * animatedValue
                                 }
                             }
-                            if (scale<1){
-                                val fl = 1- ((1-scale)*animatedValue)
+                            if (scale < 1) {
+                                val fl = 1 - ((1 - scale) * animatedValue)
                                 scleMatrix[0] = fl
                                 scleMatrix[5] = fl
                             }
@@ -322,6 +336,28 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
         }
 
         return false
+    }
+
+    private fun getMinDisX(s: Float): Float {
+        return if (s < 1) {
+            0f
+        } else {
+            s - 1
+        }
+    }
+
+    private fun getMinDisY(s: Float): Float {
+        return if (s <= 1) {
+            0f
+        } else {
+            val fl = s - 1
+            val fl1 = (1 - 1 / Math.abs(top)) / (1 / Math.abs(top))
+            if ((fl > fl1)) {
+                fl - fl1
+            } else {
+                0f
+            }
+        }
     }
 
 

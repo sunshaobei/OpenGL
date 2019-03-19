@@ -19,5 +19,11 @@
         android:layout_height="48dp"
         android:gravity="center"
         android:text="gesture" />
+    <Button
+        android:id="@+id/btn_egl"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="egl" />
 
 </LinearLayout>

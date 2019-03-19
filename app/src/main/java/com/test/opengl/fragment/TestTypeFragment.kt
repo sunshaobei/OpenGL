@@ -24,11 +24,15 @@ class TestTypeFragment : Fragment() {
 
         var btn_shape  = mView.findViewById<Button>(R.id.btn_shape)
         var btn_operation  = mView.findViewById<Button>(R.id.btn_operation)
+        var btn_egl  = mView.findViewById<Button>(R.id.btn_egl)
         btn_shape.setOnClickListener {
             NavHostFragment.findNavController(this@TestTypeFragment).navigate(R.id.nav_shape)
         }
         btn_operation.setOnClickListener {
             NavHostFragment.findNavController(this@TestTypeFragment).navigate(R.id.nav_gesture_list)
+        }
+        btn_egl.setOnClickListener {
+            NavHostFragment.findNavController(this@TestTypeFragment).navigate(R.id.nav_egl)
         }
 
         return mView
