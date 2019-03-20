@@ -6,8 +6,9 @@ import android.opengl.GLUtils
 import android.opengl.Matrix
 import com.test.opengl.GLView
 import com.test.opengl.R
-import com.test.opengl.scrawl.VBOHelper
+import com.test.opengl.vbo.VBOHelper
 import com.test.opengl.shape.Shape
+import com.test.opengl.utils.CoordinateTransform
 import com.test.opengl.utils.ShaderUtils
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -56,14 +57,6 @@ class VBOTest constructor(var glView: GLView) : Shape() {
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
     }
 
-//    private val vertexCount = vertexData.size / COORDS_PER_VERTEX
-//    //每一次取的总的点 大小
-//    private val vertexStride = COORDS_PER_VERTEX * 4 // 4 bytes per vertex
-
-    //    //位置
-//    private val vertexBuffer: FloatBuffer
-//    //纹理
-//    private val textureBuffer: FloatBuffer
     private var program: Int = 0
     private var avPosition: Int = 0
     //纹理位置
@@ -111,8 +104,8 @@ class VBOTest constructor(var glView: GLView) : Shape() {
             var circle = createBp(100, 100)
             //创建vbo
 
-            val createVertex = VBOHelper.createVertex(glView, mBitmap, circle, (glView.width / 2).toFloat(), (glView.height / 2).toFloat())
-            val createTexture = VBOHelper.createTexture(glView, mBitmap, circle, (glView.width / 2).toFloat(), (glView.height / 2).toFloat())
+            val createVertex = CoordinateTransform.createVertex(glView, mBitmap, circle, (glView.width / 2).toFloat(), (glView.height / 2).toFloat())
+            val createTexture = CoordinateTransform.createTexture(glView, mBitmap, circle, (glView.width / 2).toFloat(), (glView.height / 2).toFloat())
             vboId = VBOHelper.createVBO(createVertex, createTexture!!)
 
             //创建纹理

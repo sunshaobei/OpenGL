@@ -1,4 +1,4 @@
-package com.test.opengl.scrawl
+package com.test.opengl.vbo
 
 import android.graphics.Bitmap
 import android.opengl.GLES20
@@ -43,44 +43,5 @@ object VBOHelper {
         GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 0, 2*4* 4)
         //3. 解绑VBO
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0)
-    }
-
-
-    fun createVertex(glView:View,mBitmap:Bitmap,mask:Bitmap,x: Float, y: Float) :FloatArray{
-        val i = mBitmap.width / mBitmap.height.toFloat()
-        val realH = glView.width / i
-
-
-        var centerX = (x / glView.width) * 2 - 1
-        var centerY = -(2 * y / realH - glView.height / realH)
-        val offset = (mask.width.toFloat() /glView.width.toFloat())
-        val offset2 = offset*i
-        var vertexData = floatArrayOf(
-                centerX-offset,centerY+offset2,
-                centerX-offset,centerY-offset2,
-                centerX+offset,centerY+offset2,
-                centerX+offset,centerY-offset2
-        )
-        return vertexData
-    }
-
-
-
-    fun createTexture(glView:View,mBitmap:Bitmap,mask:Bitmap,x: Float, y: Float) :FloatArray?{
-        val i = mBitmap.width / mBitmap.height.toFloat()
-        val realH = glView.width / i
-        if (y<(glView.height-realH)/2|| y>glView.height-realH/2)
-            return null
-        var centerX = (x / glView.width)
-        var centerY = (y - (glView.height-realH)/2)/realH
-        val offset = (mask.width.toFloat() / glView.width.toFloat())/2
-        val offset2 = offset*i
-        var textureData = floatArrayOf(
-                centerX-offset,centerY-offset2,
-                centerX-offset,centerY+offset2,
-                centerX+offset,centerY-offset2,
-                centerX+offset,centerY+offset2
-        )
-        return textureData
     }
 }

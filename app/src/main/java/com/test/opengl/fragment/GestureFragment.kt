@@ -11,7 +11,6 @@ import android.widget.Button
 import android.widget.FrameLayout
 import com.test.opengl.GLView
 import com.test.opengl.R
-import com.test.opengl.gesture.Scrawl
 import com.test.opengl.gesture.Translate
 import com.test.opengl.shape.Shape
 
