@@ -1,14 +1,9 @@
 package com.test.opengl.gesture
 
-import android.opengl.GLES20
 import android.util.Log
-import com.test.opengl.shape.Square.Companion.COORDS_PER_VERTEX
-
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
-
-import javax.microedition.khronos.opengles.GL10
 
 class GLLine constructor(var render: Any, var pointSize: Float, var width: Int) {
     /**
@@ -115,26 +110,26 @@ class GLLine constructor(var render: Any, var pointSize: Float, var width: Int) 
         }
     }
 
-
-    fun drawTo(gl: GL10?, mProgram: Int) {
-        if (pointBuffer != null && colorBuffer != null) {
-            pointBuffer!!.position(0)
-            colorBuffer!!.position(0)
-            //获取顶点着色器的vPosiiton成员句柄
-            //准备坐标数据
-            if (render is ScrawlRender)
-                GLES20.glVertexAttribPointer((render as ScrawlRender).mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 12, pointBuffer)
-            else
-                GLES20.glVertexAttribPointer((render as EraserRender).mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 12, pointBuffer)
-            //绘制颜色
-            if (render is ScrawlRender)
-                GLES20.glVertexAttribPointer((render as ScrawlRender).mColorHandler, 4, GLES20.GL_FLOAT, false, 0, colorBuffer)
-            else
-                GLES20.glVertexAttribPointer((render as EraserRender).mColorHandler, 4, GLES20.GL_FLOAT, false, 0, colorBuffer)
-            //绘制三角形  绘制模式 从哪里开始 顶底总数
-            GLES20.glDrawArrays(GLES20.GL_POINTS, 0, pointBufferPos / 3)
-        }
-    }
+//
+//    fun drawTo(gl: GL10?, mProgram: Int) {
+//        if (pointBuffer != null && colorBuffer != null) {
+//            pointBuffer!!.position(0)
+//            colorBuffer!!.position(0)
+//            //获取顶点着色器的vPosiiton成员句柄
+//            //准备坐标数据
+//            if (render is ScrawlRender)
+//                GLES20.glVertexAttribPointer((render as ScrawlRender).mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 12, pointBuffer)
+//            else
+//                GLES20.glVertexAttribPointer((render as EraserRender).mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, 12, pointBuffer)
+//            //绘制颜色
+//            if (render is ScrawlRender)
+//                GLES20.glVertexAttribPointer((render as ScrawlRender).mColorHandler, 4, GLES20.GL_FLOAT, false, 0, colorBuffer)
+//            else
+//                GLES20.glVertexAttribPointer((render as EraserRender).mColorHandler, 4, GLES20.GL_FLOAT, false, 0, colorBuffer)
+//            //绘制三角形  绘制模式 从哪里开始 顶底总数
+//            GLES20.glDrawArrays(GLES20.GL_POINTS, 0, pointBufferPos / 3)
+//        }
+//    }
 
     /**
      * 计算两个点之间的距离

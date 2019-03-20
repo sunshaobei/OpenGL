@@ -39,20 +39,7 @@ class GestureFragment : Fragment() {
             e.printStackTrace()
             renderer = Translate(glView)
         }
-        if (renderer is Scrawl){
-            val button = Button(context)
-            rootView.addView(button)
-            button.text = "change"
-            val layoutParams = button.layoutParams
-            layoutParams.height = 100
-            layoutParams.width =200
-            button.layoutParams = layoutParams
 
-            button.setOnClickListener {
-                val scrawl = renderer as Scrawl
-                scrawl.isScawl = !scrawl.isScawl
-            }
-        }
         glView.setRenderer(renderer)
         // 按需渲染
         glView.renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY

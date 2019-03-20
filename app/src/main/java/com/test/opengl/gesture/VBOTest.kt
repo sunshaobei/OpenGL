@@ -33,8 +33,8 @@ class VBOTest constructor(var glView: GLView) : Shape() {
     internal var mMVPMatrix = FloatArray(16)
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
-        val w = mBitmap!!.width
-        val h = mBitmap!!.height
+        val w = mBitmap.width
+        val h = mBitmap.height
         val sWH = w / h.toFloat()
         val sWidthHeight = width / height.toFloat()
         if (width > height) {
@@ -106,6 +106,7 @@ class VBOTest constructor(var glView: GLView) : Shape() {
 
             val createVertex = CoordinateTransform.createVertex(glView, mBitmap, circle, (glView.width / 2).toFloat(), (glView.height / 2).toFloat())
             val createTexture = CoordinateTransform.createTexture(glView, mBitmap, circle, (glView.width / 2).toFloat(), (glView.height / 2).toFloat())
+
             vboId = VBOHelper.createVBO(createVertex, createTexture!!)
 
             //创建纹理
