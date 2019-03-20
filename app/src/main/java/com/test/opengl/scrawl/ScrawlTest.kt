@@ -1,4 +1,4 @@
-package com.test.opengl.gesture
+package com.test.opengl.scrawl
 
 import android.graphics.*
 import android.opengl.GLES20
@@ -15,13 +15,14 @@ import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class TestScrawl constructor(var glView: GLView) : Shape() {
+class ScrawlTest constructor(var glView: GLView) : Shape() {
 
 
     private var mProgram = 0
 
     private var mHPosition = 0
     private var mHCoord = 0
+    private var mHCoord2 = 0
     private var mHMatrix = 0
     private var mHTexture = 0
     private var mTextureSrc = 0
@@ -34,8 +35,7 @@ class TestScrawl constructor(var glView: GLView) : Shape() {
     var texture = IntArray(2)
 
 
-
-    private val sCoord = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f)
+    private val mask = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f)
 
     val originalMatrix: FloatArray
         get() = floatArrayOf(1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f)
@@ -50,25 +50,31 @@ class TestScrawl constructor(var glView: GLView) : Shape() {
         GLES20.glUseProgram(mProgram)
         GLES20.glEnableVertexAttribArray(mHPosition)
         GLES20.glEnableVertexAttribArray(mHCoord)
+        GLES20.glEnableVertexAttribArray(mHCoord2)
 
         GLES20.glUniformMatrix4fv(mHMatrix, 1, false, mMVPMatrix, 0)
 
+        val sPos = VBOHelper.createVertex(glView, mBitmap, circle, glView.width.toFloat() / 2, glView.height.toFloat() / 2)
+        val sCoord = VBOHelper.createTexture(glView, mBitmap, circle, glView.width.toFloat() / 2, glView.height.toFloat() / 2)
 
-        val sPos = floatArrayOf(-0.2f, 0.2f*mBitmap.width/mBitmap.height, //左上角
-                -0.2f, -0.2f*mBitmap.width/mBitmap.height, //左下角
-                0.2f, 0.2f*mBitmap.width/mBitmap.height, //右上角
-                0.2f, -0.2f*mBitmap.width/mBitmap.height     //右下角
-        )
         val bb = ByteBuffer.allocateDirect(sPos.size * 4)
         bb.order(ByteOrder.nativeOrder())
         var bPos = bb.asFloatBuffer()
         bPos.put(sPos)
         bPos.position(0)
-        val cc = ByteBuffer.allocateDirect(sCoord.size * 4)
+        val cc = ByteBuffer.allocateDirect(sCoord!!.size * 4)
         cc.order(ByteOrder.nativeOrder())
         var bCoord = cc.asFloatBuffer()
         bCoord.put(sCoord)
         bCoord.position(0)
+
+
+
+        val aa = ByteBuffer.allocateDirect(mask.size * 4)
+        aa.order(ByteOrder.nativeOrder())
+        var aaaa = cc.asFloatBuffer()
+        aaaa.put(mask)
+        aaaa.position(0)
 
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
@@ -84,6 +90,7 @@ class TestScrawl constructor(var glView: GLView) : Shape() {
         GLES20.glVertexAttribPointer(mHPosition, 2, GLES20.GL_FLOAT, false, 0, bPos)
         //传入纹理坐标
         GLES20.glVertexAttribPointer(mHCoord, 2, GLES20.GL_FLOAT, false, 0, bCoord)
+        GLES20.glVertexAttribPointer(mHCoord2, 2, GLES20.GL_FLOAT, false, 0, aaaa)
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
         GLES20.glDisableVertexAttribArray(mHPosition)
         GLES20.glDisableVertexAttribArray(mHCoord)
@@ -120,14 +127,15 @@ class TestScrawl constructor(var glView: GLView) : Shape() {
 
     override fun onSurfaceCreated(gl: GL10, config: EGLConfig?) {
         mProgram = ShaderUtils.createProgram(glView.context.resources, "shader/base_vertex.sh",
-                "shader/base_scrawl.frag")
+                "shader/scrawl.frag")
         mHPosition = GLES20.glGetAttribLocation(mProgram, "vPosition")
         mHCoord = GLES20.glGetAttribLocation(mProgram, "vCoord")
+        mHCoord2 = GLES20.glGetAttribLocation(mProgram, "vCoord2")
         mHMatrix = GLES20.glGetUniformLocation(mProgram, "vMatrix")
         mHTexture = GLES20.glGetUniformLocation(mProgram, "vTexture")
         mTextureSrc = GLES20.glGetUniformLocation(mProgram, "vTextureSrc")
         mBitmap = createBp()
-        circle = createBp(512, 512)
+        circle = createBp(100, 100)
 
         //生成纹理
         GLES20.glGenTextures(2, texture, 0)
