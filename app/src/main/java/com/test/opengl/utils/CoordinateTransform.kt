@@ -44,5 +44,9 @@ object CoordinateTransform{
         return textureData
     }
 
+    fun computeDistance(x1: Float, x2: Float, y1: Float, y2: Float): Double {
+        return Math.sqrt(Math.pow(((x2 - x1).toDouble()), 2.0) + Math.pow(((y2 - y1).toDouble()), 2.0))
+    }
+
 
 }
