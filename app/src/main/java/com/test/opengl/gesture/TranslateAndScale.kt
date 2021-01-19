@@ -20,6 +20,9 @@ import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
+/**
+ * 未知问题，图片显示不了
+ */
 class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.DispatchTouchListener {
 
 
@@ -211,8 +214,7 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
     }
 
     private fun createBp(): Bitmap {
-        var icon = BitmapFactory.decodeResource(AppContext.getContext().resources, R.mipmap.attack)
-        return icon
+        return BitmapFactory.decodeResource(AppContext.getContext().resources, R.mipmap.attack)
     }
 
 
@@ -372,16 +374,16 @@ class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.Dispat
      * @param y2
      * @return
      */
-    fun computeDis(x1: Float, x2: Float, y1: Float, y2: Float): Double {
+    private fun computeDis(x1: Float, x2: Float, y1: Float, y2: Float): Double {
         return Math.sqrt(Math.pow(((x2 - x1).toDouble()), 2.0) + Math.pow(((y2 - y1).toDouble()), 2.0))
     }
 
 
-    fun toOpenGLCoord(value: Float, isWidth: Boolean): Float {
-        if (isWidth) {
-            return (value / glView.width) * 2 - 1
+    private fun toOpenGLCoord(value: Float, isWidth: Boolean): Float {
+        return if (isWidth) {
+            (value / glView.width) * 2 - 1
         } else {
-            return -((value / glView.height) * 2 - 1)
+            -((value / glView.height) * 2 - 1)
         }
     }
 
