@@ -22,6 +22,7 @@ import javax.microedition.khronos.opengles.GL10
 
 /**
  * 未知问题，图片显示不了
+ * sunshaobei
  */
 class TranslateAndScale constructor(var glView: GLView) : Shape(), GLView.DispatchTouchListener {
 
